@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>AutoHop</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <header>
+      <div class="brand">
+        <img src="../icons/icon32.png" alt="" width="20" height="20" />
+        <h1>AutoHop</h1>
+      </div>
+      <label class="switch" title="When off, AutoHop only sends a notification with the link at opening time.">
+        <input type="checkbox" id="autoMode" />
+        <span>Auto-register</span>
+      </label>
+    </header>
+
+    <form id="addForm" autocomplete="off">
+      <label>
+        Event URL
+        <input id="url" type="url" required placeholder="https://hopkinsgroups.jhu.edu/…/rsvp_boot?id=…" />
+      </label>
+      <label>
+        Registration opens
+        <input id="openAt" type="datetime-local" step="1" required />
+      </label>
+      <label>
+        <span>Name <span class="muted">(optional)</span></span>
+        <input id="title" type="text" placeholder="Filled in from the page if left blank" />
+      </label>
+      <label class="check">
+        <input id="auto" type="checkbox" checked />
+        Auto-click for this event (otherwise just notify)
+      </label>
+      <details>
+        <summary>Advanced</summary>
+        <label>
+          <span>Button CSS selector <span class="muted">(if auto-detect misses it)</span></span>
+          <input id="selector" type="text" placeholder="e.g. #rsvp_button" />
+        </label>
+        <label class="check">
+          <input id="allowWaitlist" type="checkbox" />
+          Join the waitlist if the event is full
+        </label>
+      </details>
+      <p id="formError" class="error" hidden></p>
+      <button type="submit" class="primary">Schedule</button>
+    </form>
+
+    <section>
+      <h2>Scheduled events</h2>
+      <ul id="list"></ul>
+      <p id="empty" class="muted">Nothing scheduled yet.</p>
+    </section>
+
+    <template id="itemTpl">
+      <li class="item">
+        <div class="row">
+          <a class="title" target="_blank" rel="noopener"></a>
+          <span class="badge"></span>
+        </div>
+        <div class="when muted"></div>
+        <div class="message"></div>
+        <div class="check-result muted"></div>
+        <div class="actions">
+          <label class="check small"><input type="checkbox" class="itemAuto" /> Auto</label>
+          <button type="button" data-act="inspect" title="Open the page and check for the button without clicking">Test</button>
+          <button type="button" data-act="runNow" title="Try to register right now">Run now</button>
+          <button type="button" data-act="reschedule" title="Schedule again for the same time">Re-arm</button>
+          <button type="button" data-act="remove" class="danger">Remove</button>
+        </div>
+      </li>
+    </template>
+
+    <script type="module" src="popup.js"></script>
+  </body>
+</html>
