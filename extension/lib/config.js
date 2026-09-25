@@ -2,7 +2,9 @@
 // "host_permissions" in manifest.json to match.
 
 // Sites the extension is allowed to act on.
-export const ALLOWED_HOSTS = ['hopkinsgroups.jhu.edu'];
+// jhu.campusgroups.com is where event links live (e.g. /nrp/rsvp_boot?id=…);
+// hopkinsgroups.jhu.edu is kept in case links or redirects use it.
+export const ALLOWED_HOSTS = ['jhu.campusgroups.com', 'hopkinsgroups.jhu.edu'];
 
 // Open the event page this long before registration opens, to confirm you're
 // logged in while there's still time to fix it.

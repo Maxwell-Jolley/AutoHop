@@ -130,7 +130,7 @@ $('addForm').addEventListener('submit', async (e) => {
   const url = $('url').value.trim();
   const openAt = new Date($('openAt').value).getTime();
   try {
-    if (!isAllowedUrl(url)) throw new Error('Use an https://hopkinsgroups.jhu.edu event URL.');
+    if (!isAllowedUrl(url)) throw new Error('Use a Hopkins Groups event URL, like https://jhu.campusgroups.com/nrp/rsvp_boot?id=…');
     if (!Number.isFinite(openAt)) throw new Error('Pick the date and time registration opens.');
     if (openAt <= Date.now()) throw new Error('That time has already passed.');
     await send({

@@ -13,7 +13,7 @@ import { execFileSync } from 'node:child_process';
 import { chromium } from 'playwright';
 
 const EXT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../extension');
-const HOST = 'https://hopkinsgroups.jhu.edu';
+const HOST = 'https://jhu.campusgroups.com';
 const TERMINAL = ['registered', 'waitlisted', 'failed', 'needs_action', 'notified'];
 
 let context;
@@ -23,12 +23,12 @@ let server;
 const pages = new Map(); // path -> handler(hitCount) => { status, headers, body }
 const hits = new Map(); // path -> number of requests
 
-// A local HTTPS server stands in for hopkinsgroups.jhu.edu (Chromium maps the
+// A local HTTPS server stands in for jhu.campusgroups.com (Chromium maps the
 // hostname to it), because Playwright's request interception doesn't cover
 // tabs that an extension opens itself.
 function startServer() {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'autohop-'));
-  execFileSync('openssl', ['req', '-x509', '-newkey', 'rsa:2048', '-nodes', '-days', '1', '-subj', '/CN=hopkinsgroups.jhu.edu',
+  execFileSync('openssl', ['req', '-x509', '-newkey', 'rsa:2048', '-nodes', '-days', '1', '-subj', '/CN=jhu.campusgroups.com',
     '-keyout', path.join(dir, 'key.pem'), '-out', path.join(dir, 'cert.pem')], { stdio: 'ignore' });
   const srv = https.createServer(
     { key: fs.readFileSync(path.join(dir, 'key.pem')), cert: fs.readFileSync(path.join(dir, 'cert.pem')) },
@@ -52,7 +52,7 @@ before(async () => {
     args: [
       `--disable-extensions-except=${EXT}`,
       `--load-extension=${EXT}`,
-      `--host-resolver-rules=MAP hopkinsgroups.jhu.edu:443 127.0.0.1:${port}, MAP * ~NOTFOUND`,
+      `--host-resolver-rules=MAP jhu.campusgroups.com:443 127.0.0.1:${port}, MAP * ~NOTFOUND`,
       '--ignore-certificate-errors',
       '--no-proxy-server',
     ],
@@ -102,53 +102,53 @@ async function waitForStatus(title, timeoutMs = 30000) {
 test('registers at opening time through a confirm dialog', async () => {
   let clickedAt = 0;
   pages.set('/clicked', () => { clickedAt = Date.now(); return { body: 'ok' }; });
-  pages.set('/rsvp?id=1', () => ({
+  pages.set('/nrp/rsvp_boot?id=1', () => ({
     body: `<title>Spring Formal</title>
       <button onclick="fetch('/clicked'); document.getElementById('m').style.display='block'">RSVP</button>
       <div id="m" role="dialog" style="display:none">
         <button onclick="this.parentElement.innerHTML='<p>You\\'re going!</p>'">Confirm RSVP</button>
       </div>`,
   }));
-  await schedule('/rsvp?id=1', { title: 'formal' });
+  await schedule('/nrp/rsvp_boot?id=1', { title: 'formal' });
   const ev = await waitForStatus('formal');
   assert.equal(ev.status, 'registered', ev.message);
   assert.ok(clickedAt >= ev.openAt, `clicked ${ev.openAt - clickedAt}ms before opening`);
   assert.ok(clickedAt - ev.openAt < 5000, `clicked ${clickedAt - ev.openAt}ms after opening`);
-  assert.equal(hits.get('/rsvp?id=1'), 1);
+  assert.equal(hits.get('/nrp/rsvp_boot?id=1'), 1);
 });
 
 test('retries when the button is not there yet, then succeeds', async () => {
-  pages.set('/rsvp?id=2', (n) =>
+  pages.set('/nrp/rsvp_boot?id=2', (n) =>
     n < 2
       ? { body: '<p>Registration opens soon.</p>' }
       : { body: `<button onclick="this.outerHTML='<button>Cancel RSVP</button>'">Register</button>` }
   );
-  await schedule('/rsvp?id=2', { title: 'retry' });
+  await schedule('/nrp/rsvp_boot?id=2', { title: 'retry' });
   const ev = await waitForStatus('retry');
   assert.equal(ev.status, 'registered', ev.message);
-  assert.equal(hits.get('/rsvp?id=2'), 2);
+  assert.equal(hits.get('/nrp/rsvp_boot?id=2'), 2);
 });
 
 test('gives up after one attempt plus two retries and falls back to a notification', async () => {
-  pages.set('/rsvp?id=3', () => ({ body: '<p>Registration opens soon.</p>' }));
-  await schedule('/rsvp?id=3', { title: 'never' });
+  pages.set('/nrp/rsvp_boot?id=3', () => ({ body: '<p>Registration opens soon.</p>' }));
+  await schedule('/nrp/rsvp_boot?id=3', { title: 'never' });
   const ev = await waitForStatus('never', 45000);
   assert.equal(ev.status, 'failed');
   assert.match(ev.message, /Notification sent/);
-  assert.equal(hits.get('/rsvp?id=3'), 3);
+  assert.equal(hits.get('/nrp/rsvp_boot?id=3'), 3);
 });
 
 test('notify-only mode never loads the page', async () => {
-  pages.set('/rsvp?id=4', () => ({ body: '<button>RSVP</button>' }));
-  await schedule('/rsvp?id=4', { title: 'manual', auto: false });
+  pages.set('/nrp/rsvp_boot?id=4', () => ({ body: '<button>RSVP</button>' }));
+  await schedule('/nrp/rsvp_boot?id=4', { title: 'manual', auto: false });
   const ev = await waitForStatus('manual');
   assert.equal(ev.status, 'notified');
-  assert.equal(hits.get('/rsvp?id=4') || 0, 0);
+  assert.equal(hits.get('/nrp/rsvp_boot?id=4') || 0, 0);
 });
 
 test('login redirect is reported instead of clicking', async () => {
-  pages.set('/rsvp?id=5', () => ({ status: 302, headers: { location: 'https://login.example.test/sso' }, body: '' }));
-  await schedule('/rsvp?id=5', { title: 'loggedout' });
+  pages.set('/nrp/rsvp_boot?id=5', () => ({ status: 302, headers: { location: 'https://login.example.test/sso' }, body: '' }));
+  await schedule('/nrp/rsvp_boot?id=5', { title: 'loggedout' });
   const ev = await waitForStatus('loggedout');
   assert.equal(ev.status, 'needs_action');
   assert.match(ev.message, /log in/i);

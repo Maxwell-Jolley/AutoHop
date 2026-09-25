@@ -464,7 +464,7 @@ async function handleMessage(msg) {
   switch (msg.type) {
     case 'add': {
       const { url, openAt, title = '', auto = true, selector = '', allowWaitlist = false } = msg.event;
-      if (!isAllowedUrl(url)) throw new Error('URL must be an https://hopkinsgroups.jhu.edu event page.');
+      if (!isAllowedUrl(url)) throw new Error('URL must be a Hopkins Groups event page (https://jhu.campusgroups.com/…).');
       if (!Number.isFinite(openAt)) throw new Error('Invalid opening time.');
       if (openAt < Date.now() - 1000) throw new Error('That time is in the past.');
       const ev = {

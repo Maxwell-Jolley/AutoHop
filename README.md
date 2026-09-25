@@ -1,9 +1,12 @@
 # AutoHop
 
 A Chrome extension (Manifest V3) that registers you for limited-capacity events on
-[Hopkins Groups](https://hopkinsgroups.jhu.edu) (CampusGroups) at the moment registration
+[Hopkins Groups](https://jhu.campusgroups.com) (CampusGroups) at the moment registration
 opens. It uses **your own logged-in browser session**. It never sees or stores your
-password, and it only acts on `hopkinsgroups.jhu.edu`.
+password, and it only acts on Hopkins Groups pages (`jhu.campusgroups.com`, plus
+`hopkinsgroups.jhu.edu` in case links point there).
+
+Event links look like `https://jhu.campusgroups.com/nrp/rsvp_boot?id=1993211`.
 
 ## What it does
 
@@ -105,7 +108,7 @@ is brought forward so you can check.
 
 | Permission | Why |
 | --- | --- |
-| `https://hopkinsgroups.jhu.edu/*` | Open event pages and click the button there. This is the only site it can touch. |
+| `https://jhu.campusgroups.com/*`, `https://hopkinsgroups.jhu.edu/*` | Open event pages and click the button there. These are the only sites it can touch. |
 | `scripting` | Run the click and check script in the event tab. |
 | `alarms` | Wake up at the scheduled time. |
 | `notifications` | Fallback and status notifications. |

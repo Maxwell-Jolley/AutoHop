@@ -6,7 +6,7 @@
   "description": "Schedules RSVP/registration for Hopkins Groups events using your own logged-in account, with a notification fallback.",
   "minimum_chrome_version": "120",
   "permissions": ["alarms", "storage", "notifications", "scripting"],
-  "host_permissions": ["https://hopkinsgroups.jhu.edu/*"],
+  "host_permissions": ["https://jhu.campusgroups.com/*", "https://hopkinsgroups.jhu.edu/*"],
   "background": {
     "service_worker": "background.js",
     "type": "module"
