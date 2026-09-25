@@ -1,0 +1,14 @@
+{
+  "name": "autohop",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Chrome extension that schedules RSVP/registration on Hopkins Groups using your own account.",
+  "type": "module",
+  "scripts": {
+    "test": "node --test test/*.test.mjs",
+    "icons": "python3 scripts/make_icons.py"
+  },
+  "devDependencies": {
+    "playwright": "^1.56.1"
+  }
+}
